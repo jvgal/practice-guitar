@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WARM-UP — chromatic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#111;color:#fff;font-family:'Archivo',sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:16px 14px 50px}
+a.back{color:#ec3013;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:.04em}
+h1{font-size:18px;font-weight:700;letter-spacing:.05em;margin:12px 0 4px;border-bottom:2px solid #ec3013;padding-bottom:10px}
+.sec{font-size:12px;font-weight:700;letter-spacing:.06em;color:#ec3013;margin:24px 0 8px}
+.leg{font-size:12px;color:#bbb;line-height:1.7}
+.leg b{color:#fff}
+svg.tab{background:#181818;border:2px solid #262626;display:block;margin:10px 0;width:100%}
+.perm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.pcard{border:2px solid #333;padding:10px 12px;font-size:15px;font-weight:700;letter-spacing:.12em;text-align:center}
+.pcard small{display:block;font-size:10px;font-weight:500;color:#888;letter-spacing:0;margin-top:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./index.html">← BACK TO EXERCISES</a>
+  <h1>CHROMATIC WARM-UP 🔥</h1>
+  <p class="leg">1 minute before anything else. Slow and clean — warming up is not a race. <b>Alternate picking always</b> (⊓ ∨ ⊓ ∨), one finger per fret, hand and thumb relaxed.</p>
+
+  <div class="sec">EX 01 — CHROMATIC 1-2-3-4</div>
+  <p class="leg">Fingers <b>1-2-3-4</b> on four consecutive frets, one string at a time. Go up from the 6th string to the 1st; on the way back, play <b>4-3-2-1</b>.</p>
+  <svg class="tab" id="ex01" viewBox="0 0 520 150"></svg>
+
+  <div class="sec">EX 02 — PERMUTATIONS</div>
+  <p class="leg">Same idea, changing the finger order. Each pattern for one or two strings, moving up the neck. Go slow until it comes out without stumbling.</p>
+  <div class="perm" id="perms"></div>
+  <p class="leg" style="margin-top:12px">Tip: start the metronome on the exercises page with an eighth-note cell (2 per beat) and lock the warm-up into it.</p>
+</div>
+
+<script>
+// EX 01 — 6-string tab with 1-2-3-4
+(function(){
+  const svg=document.getElementById('ex01');
+  const X0=40, Y0=20, dy=20, dx=70;
+  let s='';
+  for(let i=0;i<6;i++) s+=`<line x1="${X0}" y1="${Y0+i*dy}" x2="500" y2="${Y0+i*dy}" stroke="#3a3a3a" stroke-width="1"/>`;
+  const strings=['6th (E)','5th','4th','3rd','2nd','1st (e)'];
+  strings.forEach((c,i)=> s+=`<text x="6" y="${Y0+i*dy+3}" font-size="8" fill="#777" font-family="Archivo">${c}</text>`);
+  // 4 dots 1-2-3-4 on the 6th string as the example
+  ['1','2','3','4'].forEach((n,j)=>{
+    const x=X0+30+j*dx;
+    s+=`<text x="${x}" y="${Y0-6}" text-anchor="middle" font-size="11" fill="#aaa" font-family="Archivo">${j%2?'∨':'⊓'}</text>`;
+    s+=`<circle cx="${x}" cy="${Y0}" r="9" fill="#ec3013"/><text x="${x}" y="${Y0+3.5}" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff" font-family="Archivo">${n}</text>`;
+  });
+  s+=`<text x="${X0+30+4*dx-10}" y="${Y0+2*dy}" font-size="11" fill="#888" font-family="Archivo">→ repeat on each string, descend 4-3-2-1</text>`;
+  svg.innerHTML=s;
+})();
+// EX 02 — permutations
+const PERMS=[
+ ['2 3 4 1'],['3 4 1 2'],['4 1 2 3'],
+ ['4 5 2 3'],['5 2 3 4'],['2 3 4 5'],['3 4 5 2']
+];
+document.getElementById('perms').innerHTML = PERMS.map((p,i)=>
+  `<div class="pcard">${p[0]}<small>pattern ${i+1}</small></div>`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GUITAR PRACTICE 🎸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#111;color:#fff;font-family:'Archivo',sans-serif;-webkit-user-select:none;user-select:none}
+.wrap{max-width:560px;margin:0 auto;padding:16px 14px 50px}
+h1{font-size:17px;font-weight:700;letter-spacing:.05em;margin:0 0 4px;border-bottom:2px solid #ec3013;padding-bottom:10px}
+.toplink{display:block;margin:8px 0 2px;color:#ec3013;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:.04em}
+.sec{font-size:12px;font-weight:700;letter-spacing:.06em;color:#ec3013;margin:26px 0 8px;border-top:2px solid #262626;padding-top:16px}
+.leg{font-size:11px;color:#999;line-height:1.7;margin:6px 0}
+.leg b{color:#fff}
+
+/* metronome */
+.bpm{display:flex;align-items:center;justify-content:center;gap:10px;margin:10px 0 4px}
+.bpm .num{font-size:60px;font-weight:700;min-width:140px;text-align:center;font-variant-numeric:tabular-nums}
+.bpm button{width:50px;height:50px;border:2px solid #fff;background:none;color:#fff;font-family:inherit;font-size:17px;font-weight:700;cursor:pointer}
+.bpm button:active{background:#ec3013;border-color:#ec3013}
+input[type=range]{width:100%;accent-color:#ec3013;margin:6px 0 12px}
+.beats{display:flex;gap:8px;justify-content:center;margin:2px 0 10px}
+.dot{width:15px;height:15px;border:2px solid #555;border-radius:50%}
+.dot.on{background:#ec3013;border-color:#ec3013}
+#cellView{display:block;margin:2px auto 10px;background:#181818;border:2px solid #262626;width:100%}
+.stem{stroke:#fff;stroke-width:3}.stem.hot{stroke:#ec3013}.beam{stroke:#fff;stroke-width:5}.beam2{stroke:#fff;stroke-width:4}.tbr{stroke:#888;stroke-width:1.4}
+.cellname{font-size:10px;fill:#888;font-family:Archivo}
+.play{width:100%;padding:16px;border:2px solid #ec3013;background:#ec3013;color:#fff;font-family:inherit;font-size:16px;font-weight:700;letter-spacing:.06em;cursor:pointer}
+.play.off{background:none;color:#ec3013}
+#fab{position:fixed;right:16px;bottom:16px;z-index:50;width:66px;height:66px;border-radius:50%;border:none;background:#ec3013;color:#fff;font-size:24px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+#fab.off::after{content:'▶'}#fab.on::after{content:'◼'}
+#fab .cd{font-size:26px}
+#countOverlay{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(10,10,10,.82);font-size:120px;font-weight:700;color:#ec3013}
+.cells{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 2px}
+.cell{border:2px solid #444;background:none;color:#bbb;font-family:inherit;font-size:10px;font-weight:700;padding:9px 2px;cursor:pointer;line-height:1.3}
+.cell small{display:block;font-size:8.5px;font-weight:500;color:#777}
+.cell.on{border-color:#ec3013;color:#fff}.cell.on small{color:#ffb3a6}
+
+/* diagrams */
+.diag{background:#181818;border:2px solid #262626;margin:8px 0}
+.shapegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:460px){.shapegrid{grid-template-columns:1fr 1fr 1fr}}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
+.chip2{border:2px solid #444;background:none;color:#bbb;font-family:inherit;font-size:11px;font-weight:700;padding:7px 10px;cursor:pointer}
+.chip2.on{border-color:#ec3013;color:#fff;background:#1d1210}
+#fretboard{background:#181818;border:2px solid #262626;display:block;margin:8px 0;width:100%}
+#scaleBoard{background:#181818;border:2px solid #262626;display:block;margin:8px 0;width:100%}
+.notecard{display:flex;align-items:center;gap:16px;border:2px solid #ec3013;background:#1d1210;padding:14px;margin:10px 0}
+.notecard .nn{font-size:40px;font-weight:700;color:#fff;line-height:1;min-width:70px;text-align:center}
+.notecard .gg{font-size:26px;font-weight:700;color:#ec3013}
+.notecard .meta{font-size:12px;color:#ffb3a6;margin-top:4px}
+.stepbtns{display:flex;gap:8px;margin:8px 0}
+.stepbtns button{flex:1;padding:13px;border:2px solid #fff;background:none;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.stepbtns button:active{background:#fff;color:#111}
+.stepbtns .auto{border-color:#ec3013;color:#ec3013}
+.stepbtns .auto.on{background:#ec3013;color:#fff}
+.chordbox{display:flex;align-items:center;gap:16px;border:2px solid #ec3013;background:#1d1210;padding:14px 14px;margin:10px 0}
+.chordbox .txt{flex:1}
+.chordbox .big{font-size:24px;font-weight:700;color:#fff;line-height:1.1}
+.chordbox .sm{font-size:12px;color:#ffb3a6;margin-top:5px;line-height:1.5}
+.cyclerow{display:flex;align-items:center;gap:12px;margin:10px 0;flex-wrap:wrap}
+.toggle{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;cursor:pointer}
+.sw{width:46px;height:26px;border:2px solid #555;border-radius:14px;position:relative;transition:.15s}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#777;transition:.15s}
+.toggle.on .sw{border-color:#ec3013;background:#3a1510}
+.toggle.on .sw::after{left:22px;background:#ec3013}
+.cpt{border:2px solid #444;background:none;color:#fff;font-family:inherit;font-size:12px;font-weight:700;padding:6px 8px}
+.cycleseq{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0}
+.ckey{font-size:10px;font-weight:700;border:1.5px solid #333;color:#777;padding:3px 6px}
+.ckey.on{border-color:#ec3013;color:#fff;background:#ec3013}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>GUITAR PRACTICE 🎸</h1>
+  <a class="toplink" href="./warmup.html">🔥 chromatic warm-up →</a>
+  <a class="toplink" href="./scale-builder.html">✍️ build the scale (quiz) →</a>
+
+  <!-- ===== UNIFIED METRONOME ===== -->
+  <div class="sec" style="border-top:none;padding-top:4px">METRONOME</div>
+  <div class="bpm">
+    <button id="m5">−5</button><button id="m1">−1</button>
+    <div class="num" id="bpmNum">92</div>
+    <button id="p1">+1</button><button id="p5">+5</button>
+  </div>
+  <input type="range" id="bpmSlider" min="40" max="220" value="92">
+  <div class="beats" id="beats"></div>
+  <svg id="cellView" height="84" viewBox="0 0 300 84"></svg>
+  <div class="cells" id="cells"></div>
+  <button class="play off" id="play">▶ PLAY</button>
+  <div class="leg">The metronome plays the <b>selected rhythmic cell</b>. It drives everything on this page — including the cycling fretboard down below.</div>
+
+  <!-- ===== 5 SHAPES REFERENCE ===== -->
+  <div class="sec">SCALE + CHORD — the 5 shapes (CAGED)</div>
+  <div class="leg"><span style="display:inline-block;width:10px;height:10px;border:2px solid #aaa;border-radius:50%;vertical-align:-1px"></span> scale note &nbsp; <span style="display:inline-block;width:10px;height:10px;background:#ec3013;border-radius:50%;vertical-align:-1px"></span> CHORD note &nbsp; <b style="color:#ec3013">R</b> = root</div>
+  <div class="shapegrid" id="shapes"></div>
+
+  <!-- ===== SCALES NOTE BY NOTE ===== -->
+  <div class="sec">SCALES — note by note</div>
+  <div class="leg">Pick the <b>scale</b> and the <b>root</b>. Step through note by note (◀ ▶ or auto at the metronome tempo) — hear the note, see its name and degree, and watch it light up on the fretboard. Also pick the <b>position</b> (CAGED shape) — it walks the <b>whole shape</b>, from the lowest string to the highest, up and back down.</div>
+  <div class="chips" id="scaleTypes"></div>
+  <div class="chips" id="scaleRoots"></div>
+  <div class="chips" id="scaleShapes"></div>
+  <div class="notecard">
+    <div class="nn" id="noteName">—</div>
+    <div class="txt"><div class="gg" id="noteDegree">degree</div><div class="meta" id="noteMeta"></div></div>
+  </div>
+  <svg id="scaleBoard" viewBox="0 0 740 150"></svg>
+  <div class="stepbtns">
+    <button id="scalePrev">◀</button>
+    <button class="auto" id="scalePlay">▶ PLAY WITH METRONOME</button>
+    <button id="scaleNext">▶</button>
+  </div>
+  <div class="leg">◀ ▶ steps manually (plays the note). <b>PLAY WITH METRONOME</b> walks the scale up and down <b>in sync with the metronome and the cell</b> up top. Red = scale note · white ◯ = playing now · <b style="color:#ec3013">R</b> = root.</div>
+
+  <!-- ===== CONNECTING THE SHAPES ===== -->
+  <div class="sec">CONNECTING THE SHAPES — up the neck</div>
+  <div class="leg">Uses the <b>scale</b> and <b>root</b> chosen above. Climbs (and descends) the scale <b>across all 5 positions</b> of the neck, low to high — the exercise of <b>linking one shape into the next</b>. The current position lights up bright, the rest of the map stays dim.</div>
+  <div class="notecard">
+    <div class="nn" id="connPos">Position 1/5</div>
+  </div>
+  <svg id="connBoard" viewBox="0 0 740 150"></svg>
+  <div class="stepbtns">
+    <button id="connPrev">◀</button>
+    <button class="auto" id="connPlay">▶ PLAY WITH METRONOME</button>
+    <button id="connNext">▶</button>
+  </div>
+  <div class="leg"><span id="connMeta"></span> — notice where the hand <b>jumps position</b>: that's where one shape becomes the next.</div>
+
+  <!-- ===== INTERACTIVE FRETBOARD ===== -->
+  <div class="sec">INTERACTIVE FRETBOARD</div>
+  <div class="leg">Pick the <b>key</b> and the <b>shape</b>: the fretboard lights up the scale. Start the metronome and play over it with the chosen cell.</div>
+  <div class="chips" id="roots"></div>
+  <div class="chips" id="shapePick"></div>
+  <div class="chordbox" id="chordCard"></div>
+  <svg id="fretboard" viewBox="0 0 740 150"></svg>
+
+  <div class="leg">Play over the static shape: start the metronome up top and go. Or run the <b>cycle of 4ths</b> below as an exercise.</div>
+
+  <!-- ===== CYCLE OF 4THS ===== -->
+  <div class="sec">CYCLE OF 4THS — exercise</div>
+  <div class="leg">Starts on the <b>key and shape chosen above</b> (e.g. G in the E shape) and walks the cycle G→C→F→B♭… <b>changing the shape along with it</b> E→D→C→A→G… It switches by itself in time (a cue chord marks the change), and you play the scale over it on the metronome cell.</div>
+  <div class="cyclerow">
+    <label style="font-size:11px;color:#999">bars per key:
+      <select class="cpt" id="cpt"><option>1</option><option selected>2</option><option>4</option></select>
+    </label>
+  </div>
+  <div class="cycleseq" id="cycleSeq"></div>
+  <div class="stepbtns">
+    <button class="auto" id="cyclePlay" style="flex:1">▶ PLAY WITH METRONOME</button>
+  </div>
+  <button id="fab" class="off" aria-label="play"></button>
+  <div id="countOverlay"></div>
+</div>
+
+<script>
+// ---------- data ----------
+const CELLS = [
+  {n:'PULSE', sub:'quarter note', pat:[0], notes:[{p:0,b:0}]},
+  {n:'1 EIGHTHS', sub:'2 eighth notes', pat:[0,.5], notes:[{p:0,b:1},{p:.5,b:1}]},
+  {n:'2 SHUFFLE', sub:'swung eighths', pat:[0,2/3], notes:[{p:0,b:1},{p:2/3,b:1}], swing:true},
+  {n:'3 TRIPLETS', sub:'eighth-note triplet', pat:[0,1/3,2/3], notes:[{p:0,b:1},{p:1/3,b:1},{p:2/3,b:1}], trip:true},
+  {n:'4 SIXTEENTHS', sub:'4 sixteenth notes', pat:[0,.25,.5,.75], notes:[{p:0,b:2},{p:.25,b:2},{p:.5,b:2},{p:.75,b:2}]},
+  {n:'5 GALLOP', sub:'eighth + 2 sixteenths', pat:[0,.5,.75], notes:[{p:0,b:1},{p:.5,b:2},{p:.75,b:2}]},
+  {n:'6 REV. GALLOP', sub:'2 sixteenths + eighth', pat:[0,.25,.5], notes:[{p:0,b:2},{p:.25,b:2},{p:.5,b:1}]},
+  {n:'7 SYNCOPATED', sub:'16th + 8th + 16th', pat:[0,.25,.75], notes:[{p:0,b:2},{p:.25,b:1},{p:.75,b:2}]},
+];
+const NOTES = ['C','D♭','D','E♭','E','F','F#','G','A♭','A','B♭','B'];
+const CYCLE = [7,0,5,10,3,8,1,6,11,4,9,2]; // G C F Bb Eb Ab Db F# B E A D
+const STRINGS = [4,9,2,7,11,4]; // open-string pitch classes, low E to high e
+const ROOTPOS = {0:[5,3],1:[5,1],2:[6,3],3:[6,1],4:[4,1]};
+const SHAPES = [
+ {n:'C shape', hint:'open C form', cols:4, notes:[[6,0,'s'],[6,1,'s'],[6,3,'s'],[5,0,'s'],[5,2,'s'],[5,3,'r'],[4,0,'s'],[4,2,'c'],[4,3,'s'],[3,0,'c'],[3,2,'s'],[2,0,'s'],[2,1,'r'],[2,3,'s'],[1,0,'c'],[1,1,'s'],[1,3,'s']]},
+ {n:'A shape', hint:'A-type barre', cols:4, notes:[[6,1,'s'],[6,3,'s'],[5,1,'r'],[5,3,'s'],[4,0,'s'],[4,1,'s'],[4,3,'c'],[3,0,'s'],[3,2,'s'],[3,3,'r'],[2,1,'s'],[2,3,'c'],[1,1,'c'],[1,3,'s']]},
+ {n:'G shape', hint:'open G form', cols:4, notes:[[6,0,'s'],[6,2,'s'],[6,3,'r'],[5,0,'s'],[5,2,'c'],[5,3,'s'],[4,0,'c'],[4,2,'s'],[3,0,'r'],[3,2,'s'],[2,0,'c'],[2,1,'s'],[2,3,'c'],[1,0,'s'],[1,2,'s'],[1,3,'r']]},
+ {n:'E shape', hint:'E-type barre', cols:4, notes:[[6,1,'r'],[6,3,'s'],[5,0,'s'],[5,1,'s'],[5,3,'c'],[4,0,'s'],[4,2,'s'],[4,3,'r'],[3,0,'s'],[3,2,'c'],[3,3,'s'],[2,1,'c'],[2,3,'s'],[1,0,'s'],[1,1,'r'],[1,3,'s']]},
+ {n:'D shape', hint:'open D form', cols:5, notes:[[6,1,'s'],[6,3,'s'],[6,4,'s'],[5,1,'s'],[5,3,'s'],[4,1,'r'],[4,3,'s'],[3,0,'s'],[3,1,'s'],[3,3,'c'],[2,1,'s'],[2,3,'s'],[2,4,'r'],[1,1,'s'],[1,3,'c'],[1,4,'s']]},
+];
+
+// ---------- state ----------
+let bpm = +(localStorage.getItem('bpm')||92);
+let cell = +(localStorage.getItem('cell')||1);
+let keySel = 7, shapeSel = 3, cycling = false;
+let playing=false, ctx=null, master=null, nextT=0, gBeat=0, timer=null;
+function ensureCtx(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(!master){ master=ctx.createGain(); master.gain.value=1; master.connect(ctx.destination); } return ctx; }
+function masterOn(){ master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setValueAtTime(1, ctx.currentTime); }
+
+// ---------- audio ----------
+function tick(t, strong){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.frequency.value=strong?1500:1000;
+  g.gain.setValueAtTime(strong?.5:.22,t);
+  g.gain.exponentialRampToValueAtTime(.001,t+.05);
+  o.connect(g); g.connect(master||ctx.destination); o.start(t); o.stop(t+.06);
+}
+function freq(m){return 440*Math.pow(2,(m-69)/12);}
+function chordCue(t, key){
+  const root=40+((key-4)%12+12)%12;
+  [0,4,7,12].forEach((iv,i)=>{
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type='triangle'; o.frequency.value=freq(root+iv);
+    const t0=t+i*.03;
+    g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(.16,t0+.05);
+    g.gain.exponentialRampToValueAtTime(.001,t+1.1);
+    o.connect(g); g.connect(master||ctx.destination); o.start(t0); o.stop(t+1.2);
+  });
+}
+
+// ---------- unified scheduler ----------
+function cycleIdxOf(key){ return Math.max(0, CYCLE.indexOf(key)); }
+let cycStart=0, shStart=3; // cycle index and shape where the run started
+function schedule(){
+  const dur=60/bpm, barBeats=4, bpk=+document.getElementById('cpt').value;
+  while(nextT < ctx.currentTime+.12){
+    const beatInBar=gBeat%barBeats;
+    // cycling: change key at the start of each window of bpk bars
+    if(cycling){
+      const keyPos = Math.floor(gBeat/(bpk*barBeats));
+      const idx=(cycStart+keyPos)%12;
+      const sh=(shStart+keyPos)%5;
+      const key=CYCLE[idx];
+      if(key!==keySel && beatInBar===0 && gBeat%(bpk*barBeats)===0){
+        chordCue(nextT, key);
+        const cIdx=idx, cSh=sh;
+        setTimeout(()=>{ keySel=CYCLE[cIdx]; shapeSel=cSh; drawPickers(); drawFretboard(); markCycle(cIdx); }, Math.max(0,(nextT-ctx.currentTime)*1000));
+      }
+    }
+    // the cell's clicks within the beat
+    CELLS[cell].pat.forEach((f,i)=>{
+      const tN=nextT+f*dur, q=(tN-ctx.currentTime)*1000;
+      if(scalePlaying && scaleNotes.length){
+        const w=scaleTake();
+        pluckAt(scaleNotes[w].midi, tN);
+        setTimeout(()=>{ if(!playing||!scalePlaying)return; scaleHi=w; drawScale(); }, Math.max(0,q));
+        if(i===0 && beatInBar===0) tick(tN, true);
+      } else if(connPlaying && connNotes.length){
+        const w=connTake();
+        pluckAt(connNotes[w].midi, tN);
+        setTimeout(()=>{ if(!playing||!connPlaying)return; connHi=w; drawConn(); }, Math.max(0,q));
+        if(i===0 && beatInBar===0) tick(tN, true);
+      } else {
+        tick(tN, i===0 && beatInBar===0);
+      }
+      setTimeout(()=>{ if(!playing)return; flash(i); }, Math.max(0,q));
+    });
+    // visual beat accent
+    const b=beatInBar, q=(nextT-ctx.currentTime)*1000;
+    setTimeout(()=>{ if(!playing)return; paintBeat(b); }, Math.max(0,q));
+    gBeat++; nextT+=dur;
+  }
+}
+let counting=false;
+function syncBtns(){
+  const b=document.getElementById('play');
+  b.textContent=playing?'◼ STOP':'▶ PLAY'; b.classList.toggle('off',!playing);
+  const fab=document.getElementById('fab'); fab.classList.toggle('on',playing); fab.classList.toggle('off',!playing);
+}
+function startScheduler(){
+  if(cycling){ cycStart=cycleIdxOf(keySel); shStart=shapeSel; }
+  nextT=ctx.currentTime+.08; gBeat=0; timer=setInterval(schedule,25); playing=true; syncBtns();
+}
+function play(){
+  if(playing){ clearInterval(timer); playing=false; scaleReset(); connReset(); cycleOff(); if(master) master.gain.setTargetAtTime(.0001, ctx.currentTime, .01); syncBtns(); return; }
+  if(counting) return;
+  ensureCtx(); ctx.resume(); masterOn();
+  // 4-beat count-in at the current BPM before starting
+  counting=true;
+  const dur=60/bpm, t0=ctx.currentTime+.1;
+  const ov=document.getElementById('countOverlay'); ov.style.display='flex';
+  document.getElementById('play').textContent='…';
+  for(let i=0;i<4;i++){
+    tick(t0+i*dur, true);
+    setTimeout(()=>{ ov.textContent=(4-i); }, (t0+i*dur-ctx.currentTime)*1000);
+  }
+  setTimeout(()=>{ ov.style.display='none'; counting=false; startScheduler(); }, (t0+4*dur-ctx.currentTime)*1000);
+}
+document.getElementById('fab').onclick=play;
+
+// ---------- metronome UI ----------
+function paintBeat(i){ document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('on',j===i)); }
+function setBpm(v){ bpm=Math.min(220,Math.max(40,v)); document.getElementById('bpmNum').textContent=bpm; document.getElementById('bpmSlider').value=bpm; localStorage.setItem('bpm',bpm); }
+function drawCellBtns(){
+  document.getElementById('cells').innerHTML=CELLS.map((c,i)=>
+    `<button class="cell ${i===cell?'on':''}" data-i="${i}">${c.n}<small>${c.sub}</small></button>`).join('');
+}
+function drawCell(){
+  const c=CELLS[cell], notes=c.notes, W=240, X0=30, Y=58, yTop=18, yTop2=24;
+  const X=p=>X0+p*W;
+  let svg=`<line x1="${X0-14}" y1="${Y}" x2="${X0+W+14}" y2="${Y}" stroke="#333" stroke-width="2"/>`;
+  // triplet bracket
+  if(c.trip){ const xa=X(notes[0].p), xb=X(notes[notes.length-1].p);
+    svg+=`<line class="tbr" x1="${xa}" y1="9" x2="${xb}" y2="9"/><line class="tbr" x1="${xa}" y1="9" x2="${xa}" y2="13"/><line class="tbr" x1="${xb}" y1="9" x2="${xb}" y2="13"/>`;
+    svg+=`<text x="${(xa+xb)/2}" y="8" class="cellname" text-anchor="middle" fill="#bbb">3</text>`; }
+  // primary beam (every note eighth or shorter)
+  const bm=notes.filter(n=>n.b>=1);
+  if(bm.length>=2) svg+=`<line class="beam" x1="${X(bm[0].p)}" y1="${yTop}" x2="${X(bm[bm.length-1].p)}" y2="${yTop}"/>`;
+  // secondary beam (sixteenths): joins neighbors; a lone note gets a stub
+  for(let i=0;i<notes.length;i++){ if(notes[i].b<2) continue;
+    const nx=notes[i+1], pv=notes[i-1];
+    if(nx && nx.b>=2){ svg+=`<line class="beam2" x1="${X(notes[i].p)}" y1="${yTop2}" x2="${X(nx.p)}" y2="${yTop2}"/>`; }
+    else if(!(pv && pv.b>=2)){ const dir=pv?-1:1; svg+=`<line class="beam2" x1="${X(notes[i].p)}" y1="${yTop2}" x2="${X(notes[i].p)+dir*14}" y2="${yTop2}"/>`; }
+  }
+  // stems + noteheads + augmentation dot
+  notes.forEach((n,i)=>{ const x=X(n.p), top=n.b>=1?yTop:Y-30;
+    svg+=`<line id="st-${i}" class="stem" x1="${x}" y1="${top}" x2="${x}" y2="${Y-8}"/>`;
+    svg+=`<ellipse cx="${x-4}" cy="${Y-6}" rx="7" ry="5" fill="#fff" transform="rotate(-20 ${x-4} ${Y-6})"/>`;
+    if(n.dot) svg+=`<circle cx="${x+8}" cy="${Y-6}" r="2.2" fill="#fff"/>`; });
+  if(c.swing) svg+=`<text x="${X(0.33)}" y="12" class="cellname" text-anchor="middle" fill="#bbb">swing ≈</text>`;
+  svg+=`<text x="150" y="80" class="cellname" text-anchor="middle">${c.n} — ${c.sub} (1 beat)</text>`;
+  document.getElementById('cellView').innerHTML=svg;
+}
+function flash(i){ const st=document.getElementById('st-'+i); if(st){ st.classList.add('hot'); setTimeout(()=>st.classList.remove('hot'),90);} }
+document.getElementById('cells').addEventListener('click',e=>{ const b=e.target.closest('.cell'); if(!b)return; cell=+b.dataset.i; localStorage.setItem('cell',cell); drawCellBtns(); drawCell(); });
+document.getElementById('bpmSlider').addEventListener('input',e=>setBpm(+e.target.value));
+document.getElementById('m5').onclick=()=>setBpm(bpm-5);
+document.getElementById('m1').onclick=()=>setBpm(bpm-1);
+document.getElementById('p1').onclick=()=>setBpm(bpm+1);
+document.getElementById('p5').onclick=()=>setBpm(bpm+5);
+document.getElementById('play').onclick=play;
+document.getElementById('beats').innerHTML='<div class="dot"></div>'.repeat(4);
+
+// ---------- 5 shapes reference ----------
+(function(){
+  document.getElementById('shapes').innerHTML=SHAPES.map(sh=>{
+    const cols=sh.cols,cw=26,X0=18,Y0=14,dy=14,W=X0*2+cols*cw,H=Y0*2+5*dy+10;
+    let svg='';
+    for(let i=0;i<6;i++) svg+=`<line x1="${X0}" y1="${Y0+i*dy}" x2="${X0+cols*cw}" y2="${Y0+i*dy}" stroke="#444" stroke-width="1"/>`;
+    for(let c=0;c<=cols;c++) svg+=`<line x1="${X0+c*cw}" y1="${Y0}" x2="${X0+c*cw}" y2="${Y0+5*dy}" stroke="#444" stroke-width="${c===0?2:1}"/>`;
+    sh.notes.forEach(([str,col,t])=>{ const y=Y0+(6-str)*dy,x=X0+col*cw+cw/2;
+      if(t==='s') svg+=`<circle cx="${x}" cy="${y}" r="5.2" fill="#181818" stroke="#aaa" stroke-width="1.6"/>`;
+      else{ svg+=`<circle cx="${x}" cy="${y}" r="5.8" fill="#ec3013"/>`; if(t==='r') svg+=`<text x="${x}" y="${y+2.8}" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#fff" font-family="Archivo">R</text>`; }});
+    svg+=`<text x="${W/2}" y="${H-4}" text-anchor="middle" class="cellname" font-weight="bold">${sh.n}</text>`;
+    return `<svg class="diag" viewBox="0 0 ${W} ${H}">${svg}</svg>`;
+  }).join('');
+})();
+
+
+// ---------- scales note by note (synced with the metronome) ----------
+const OPENMIDI=[40,45,50,55,59,64]; // strings 6..1 (low to high)
+const SCALES=[
+ {n:'Major', int:[0,2,4,5,7,9,11], deg:['1','2','3','4','5','6','7']},
+ {n:'Natural minor', int:[0,2,3,5,7,8,10], deg:['1','2','♭3','4','5','♭6','♭7']},
+ {n:'Harmonic minor', int:[0,2,3,5,7,8,11], deg:['1','2','♭3','4','5','♭6','7']},
+ {n:'Minor pent.', int:[0,3,5,7,10], deg:['1','♭3','4','5','♭7']},
+ {n:'Major pent.', int:[0,2,4,7,9], deg:['1','2','3','5','6']},
+ {n:'Blues', int:[0,3,5,6,7,10], deg:['1','♭3','4','♭5','5','♭7']},
+];
+let scaleType=0, scaleRoot=7, scalePos=0, scaleNotes=[], scaleHi=0, scaleWalk=0, scaleDir=1, scalePlaying=false;
+let connNotes=[], connHi=0, connWalk=0, connDir=1, connPlaying=false;
+const PSTART=[0,2,4,7,9];          // start of the 5 CAGED boxes from the root on the 6th string
+const PNAME=['E','D','C','A','G']; // approximate shape of each position going up the neck
+
+function scalePcs(){ return SCALES[scaleType].int.map(iv=>(scaleRoot+iv)%12); }
+function rootFretE(){ return ((scaleRoot-4)%12+12)%12; }   // fret of the root on the 6th string
+function noteInfo(midi){ const pc=midi%12; const sem=((pc-scaleRoot)%12+12)%12; const gi=SCALES[scaleType].int.indexOf(sem); return {deg: gi>=0?SCALES[scaleType].deg[gi]:'?', root:sem===0, name:NOTES[pc]}; }
+function buildBox(p){
+  const pcs=scalePcs(), start=(rootFretE()+PSTART[p])%12;
+  const notes=[];
+  for(let si=0; si<6; si++){
+    for(let f=start; f<=start+3; f++){
+      if(f<0||f>16) continue;
+      const midi=OPENMIDI[si]+f;
+      if(pcs.includes(midi%12)){ const inf=noteInfo(midi); notes.push({str:6-si, fret:f, midi, deg:inf.deg, root:inf.root, name:inf.name}); }
+    }
+  }
+  return notes; // already low string to high, ascending frets
+}
+function buildScale(){ scaleNotes=buildBox(scalePos); scaleHi=0; scaleWalk=0; scaleDir=1; }
+const CONNWIN=[[0,4],[3,7],[5,9],[8,12],[11,15]]; // 5 windows going up the whole neck
+function buildConn(){
+  const pcs=scalePcs(); connNotes=[];
+  CONNWIN.forEach((w,p)=>{
+    for(let si=0; si<6; si++) for(let f=w[0]; f<=w[1]; f++){ const midi=OPENMIDI[si]+f; if(pcs.includes(midi%12)){ const inf=noteInfo(midi); connNotes.push({str:6-si, fret:f, midi, pos:p, deg:inf.deg, root:inf.root, name:inf.name}); } }
+  });
+  // drop consecutive physical repeats within the same window
+  connNotes=connNotes.filter((n,i,a)=> i===0 || !(n.str===a[i-1].str && n.fret===a[i-1].fret && n.pos===a[i-1].pos));
+  const r0=connNotes.findIndex(n=>n.root); connWalk=connHi=(r0>0?r0:0); connDir=1;
+}
+function pluckAt(midi,t){
+  ensureCtx();
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type='sawtooth'; o.frequency.value=freq(midi);
+  g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(.3,t+.01);
+  g.gain.exponentialRampToValueAtTime(.001,t+.5);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+.55);
+}
+function scaleBounce(){ if(scaleNotes.length<2){scaleWalk=0;scaleDir=1;return;} scaleWalk+=scaleDir; if(scaleWalk>=scaleNotes.length){scaleWalk=scaleNotes.length-2;scaleDir=-1;} if(scaleWalk<0){scaleWalk=1;scaleDir=1;} }
+function scaleTake(){ const w=scaleWalk; scaleBounce(); return w; }   // index to play now; already lines up the next one
+function connBounce(){ if(connNotes.length<2){connWalk=0;connDir=1;return;} connWalk+=connDir; if(connWalk>=connNotes.length){connWalk=connNotes.length-2;connDir=-1;} if(connWalk<0){connWalk=1;connDir=1;} }
+function connTake(){ const w=connWalk; connBounce(); return w; }
+function drawScale(){
+  const NF=16, X0=34, Y0=22, dy=20, fw=(740-X0-10)/NF;
+  let svg='';
+  for(let i=0;i<6;i++) svg+=`<line x1="${X0}" y1="${Y0+i*dy}" x2="${X0+NF*fw}" y2="${Y0+i*dy}" stroke="#444" stroke-width="${1+(5-i)*0.25}"/>`;
+  for(let f=0;f<=NF;f++) svg+=`<line x1="${X0+f*fw}" y1="${Y0}" x2="${X0+f*fw}" y2="${Y0+5*dy}" stroke="#3a3a3a" stroke-width="${f===0?4:1}"/>`;
+  [3,5,7,9,15].forEach(f=> svg+=`<circle cx="${X0+(f-0.5)*fw}" cy="${Y0+2.5*dy}" r="4" fill="#2c2c2c"/>`);
+  svg+=`<circle cx="${X0+11.5*fw}" cy="${Y0+1.5*dy}" r="4" fill="#2c2c2c"/><circle cx="${X0+11.5*fw}" cy="${Y0+3.5*dy}" r="4" fill="#2c2c2c"/>`;
+  for(let f=1;f<=NF;f++) svg+=`<text x="${X0+(f-0.5)*fw}" y="${Y0+5*dy+16}" text-anchor="middle" font-size="8.5" fill="#666" font-family="Archivo">${f}</text>`;
+  scaleNotes.forEach((n,i)=>{ const fret=n.fret; if(fret>NF)return; const y=Y0+(6-n.str)*dy, x=fret===0?X0-14:X0+(fret-0.5)*fw;
+    const cur=i===scaleHi;
+    svg+=`<circle cx="${x}" cy="${y}" r="${cur?8.5:7}" fill="#ec3013"/>`;
+    if(cur) svg+=`<circle cx="${x}" cy="${y}" r="11" fill="none" stroke="#fff" stroke-width="2"/>`;
+    svg+=`<text x="${x}" y="${y+3}" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff" font-family="Archivo">${n.root?'R':n.deg}</text>`; });
+  svg+=`<text x="${X0}" y="12" font-size="11" font-weight="bold" fill="#ec3013" font-family="Archivo">${NOTES[scaleRoot]} ${SCALES[scaleType].n}</text>`;
+  document.getElementById('scaleBoard').innerHTML=svg;
+  const n=scaleNotes[scaleHi]||{};
+  document.getElementById('noteName').textContent=n.name||'—';
+  document.getElementById('noteDegree').textContent='degree '+(n.root?'1 (root)':n.deg||'');
+  document.getElementById('noteMeta').textContent=`note ${scaleHi+1}/${scaleNotes.length} · string ${n.str} fret ${n.fret}`;
+}
+function scaleManual(d){ if(!scaleNotes.length)return; scaleWalk=(scaleHi+d+scaleNotes.length)%scaleNotes.length; scaleHi=scaleWalk; scaleDir=d>=0?1:-1; scaleBounce(); const n=scaleNotes[scaleHi]; ensureCtx(); ctx.resume(); masterOn(); pluckAt(n.midi,ctx.currentTime); drawScale(); }
+function drawConn(){
+  const NF=16, X0=34, Y0=22, dy=20, fw=(740-X0-10)/NF;
+  let svg='';
+  for(let i=0;i<6;i++) svg+=`<line x1="${X0}" y1="${Y0+i*dy}" x2="${X0+NF*fw}" y2="${Y0+i*dy}" stroke="#444" stroke-width="${1+(5-i)*0.25}"/>`;
+  for(let f=0;f<=NF;f++) svg+=`<line x1="${X0+f*fw}" y1="${Y0}" x2="${X0+f*fw}" y2="${Y0+5*dy}" stroke="#3a3a3a" stroke-width="${f===0?4:1}"/>`;
+  [3,5,7,9,15].forEach(f=> svg+=`<circle cx="${X0+(f-0.5)*fw}" cy="${Y0+2.5*dy}" r="4" fill="#2c2c2c"/>`);
+  svg+=`<circle cx="${X0+11.5*fw}" cy="${Y0+1.5*dy}" r="4" fill="#2c2c2c"/><circle cx="${X0+11.5*fw}" cy="${Y0+3.5*dy}" r="4" fill="#2c2c2c"/>`;
+  for(let f=1;f<=NF;f++) svg+=`<text x="${X0+(f-0.5)*fw}" y="${Y0+5*dy+16}" text-anchor="middle" font-size="8.5" fill="#666" font-family="Archivo">${f}</text>`;
+  const curPos = connNotes[connHi]?connNotes[connHi].pos:0;
+  connNotes.forEach((n,i)=>{ const fret=n.fret; if(fret>NF)return; const y=Y0+(6-n.str)*dy, x=fret===0?X0-14:X0+(fret-0.5)*fw;
+    const cur=i===connHi, inPos=n.pos===curPos;
+    svg+=`<circle cx="${x}" cy="${y}" r="${cur?8.5:(inPos?7:5.2)}" fill="#ec3013" opacity="${cur||inPos?1:0.4}"/>`;
+    if(cur) svg+=`<circle cx="${x}" cy="${y}" r="11" fill="none" stroke="#fff" stroke-width="2"/>`;
+    if(cur||inPos) svg+=`<text x="${x}" y="${y+3}" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff" font-family="Archivo">${n.root?'R':n.deg}</text>`;
+  });
+  svg+=`<text x="${X0}" y="12" font-size="11" font-weight="bold" fill="#ec3013" font-family="Archivo">${NOTES[scaleRoot]} ${SCALES[scaleType].n} — full neck</text>`;
+  document.getElementById('connBoard').innerHTML=svg;
+  const n=connNotes[connHi]||{};
+  document.getElementById('connMeta').textContent=`note ${connHi+1}/${connNotes.length} · ${n.name||''} · string ${n.str} fret ${n.fret}`;
+  document.getElementById('connPos').textContent=`Position ${curPos+1}/5 — ${PNAME[curPos]} shape`;
+}
+function connManual(d){ if(!connNotes.length)return; connWalk=(connHi+d+connNotes.length)%connNotes.length; connHi=connWalk; connDir=d>=0?1:-1; connBounce(); const n=connNotes[connHi]; ensureCtx(); ctx.resume(); masterOn(); pluckAt(n.midi,ctx.currentTime); drawConn(); }
+function drawScaleUI(){
+  document.getElementById('scaleTypes').innerHTML=SCALES.map((sc,i)=>`<button class="chip2 ${i===scaleType?'on':''}" data-e="${i}">${sc.n}</button>`).join('');
+  document.getElementById('scaleRoots').innerHTML=NOTES.map((nm,i)=>`<button class="chip2 ${i===scaleRoot?'on':''}" data-r="${i}">${nm}</button>`).join('');
+  document.getElementById('scaleShapes').innerHTML=PSTART.map((_,i)=>`<button class="chip2 ${i===scalePos?'on':''}" data-p="${i}">${PNAME[i]} shape</button>`).join('');
+}
+function connReset(){ const cb=document.getElementById('connPlay'); connPlaying=false; cb.classList.remove('on'); cb.textContent='▶ PLAY WITH METRONOME'; }
+function scaleReset(){ const eb=document.getElementById('scalePlay'); scalePlaying=false; eb.classList.remove('on'); eb.textContent='▶ PLAY WITH METRONOME'; }
+document.getElementById('scaleTypes').addEventListener('click',e=>{const b=e.target.closest('[data-e]');if(!b)return;scaleType=+b.dataset.e;drawScaleUI();buildScale();drawScale();buildConn();drawConn();});
+document.getElementById('scaleRoots').addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;scaleRoot=+b.dataset.r;drawScaleUI();buildScale();drawScale();buildConn();drawConn();});
+document.getElementById('scaleShapes').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;scalePos=+b.dataset.p;drawScaleUI();buildScale();drawScale();});
+document.getElementById('scalePrev').onclick=()=>scaleManual(-1);
+document.getElementById('scaleNext').onclick=()=>scaleManual(1);
+document.getElementById('scalePlay').onclick=function(){
+  scalePlaying=!scalePlaying; this.classList.toggle('on',scalePlaying);
+  this.textContent=scalePlaying?'◼ STOP SCALE':'▶ PLAY WITH METRONOME';
+  if(scalePlaying){ connReset(); cycleOff(); scaleWalk=0; scaleDir=1; if(!playing) play(); }
+  else if(playing && !cycling && !connPlaying) play();
+};
+document.getElementById('connPrev').onclick=()=>connManual(-1);
+document.getElementById('connNext').onclick=()=>connManual(1);
+document.getElementById('connPlay').onclick=function(){
+  connPlaying=!connPlaying; this.classList.toggle('on',connPlaying);
+  this.textContent=connPlaying?'◼ STOP':'▶ PLAY WITH METRONOME';
+  if(connPlaying){ scaleReset(); cycleOff(); const r0=connNotes.findIndex(n=>n.root); connWalk=connHi=(r0>0?r0:0); connDir=1; if(!playing) play(); }
+  else if(playing && !cycling && !scalePlaying) play();
+};
+
+// ---------- interactive fretboard ----------
+function baseFret(key,sh){ const [str,col]=ROOTPOS[sh]; const rs=STRINGS[6-str];
+  let f=((key-rs)%12+12)%12, origin=f-col; if(origin<0)origin+=12; if(origin+SHAPES[sh].cols>16)origin-=12; return Math.max(origin,0); }
+function chordDiagram(sh, origin){
+  // VERTICAL chord chart (6 strings upright, low E on the left) — big and readable
+  const chord = sh.notes.filter(n=>n[2]!=='s');           // chord notes only
+  const cols = Math.max(...chord.map(n=>n[1]));           // frets used (relative)
+  const NC = Math.max(cols,3)+1;                          // number of frets in the diagram
+  const sx=22, sy=30, X0=26, Y0=34, W=X0*2+5*sx, H=Y0+NC*sy+14;
+  let svg=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  // string names on top
+  ['E','A','D','G','B','e'].forEach((c,i)=> svg+=`<text x="${X0+i*sx}" y="${Y0-12}" text-anchor="middle" font-size="10" fill="#888" font-family="Archivo">${c}</text>`);
+  // 6 strings (vertical)
+  for(let i=0;i<6;i++) svg+=`<line x1="${X0+i*sx}" y1="${Y0}" x2="${X0+i*sx}" y2="${Y0+NC*sy}" stroke="#777" stroke-width="1.4"/>`;
+  // frets (horizontal)
+  for(let f=0;f<=NC;f++) svg+=`<line x1="${X0}" y1="${Y0+f*sy}" x2="${X0+5*sx}" y2="${Y0+f*sy}" stroke="#777" stroke-width="${f===0?4:1.2}"/>`;
+  // real starting fret number (on the left)
+  if(origin>0) svg+=`<text x="${X0-12}" y="${Y0+sy-6}" text-anchor="end" font-size="13" font-weight="bold" fill="#ec3013" font-family="Archivo">${origin+1}fr</text>`;
+  // fingers
+  chord.forEach(([str,col,t])=>{
+    const x=X0+(6-str)*sx, y=Y0+(col+0.5)*sy;
+    svg+=`<circle cx="${x}" cy="${y}" r="10" fill="#ec3013"/>`;
+    if(t==='r') svg+=`<text x="${x}" y="${y+4}" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff" font-family="Archivo">R</text>`;
+  });
+  return svg+'</svg>';
+}
+function drawFretboard(){
+  const sh=SHAPES[shapeSel], origin=baseFret(keySel,shapeSel), NF=16, X0=34, Y0=22, dy=20, fw=(740-X0-10)/NF;
+  let svg='';
+  for(let i=0;i<6;i++) svg+=`<line x1="${X0}" y1="${Y0+i*dy}" x2="${X0+NF*fw}" y2="${Y0+i*dy}" stroke="#444" stroke-width="${1+(5-i)*0.25}"/>`;
+  for(let f=0;f<=NF;f++) svg+=`<line x1="${X0+f*fw}" y1="${Y0}" x2="${X0+f*fw}" y2="${Y0+5*dy}" stroke="#3a3a3a" stroke-width="${f===0?4:1}"/>`;
+  [3,5,7,9,15].forEach(f=> svg+=`<circle cx="${X0+(f-0.5)*fw}" cy="${Y0+2.5*dy}" r="4" fill="#2c2c2c"/>`);
+  svg+=`<circle cx="${X0+11.5*fw}" cy="${Y0+1.5*dy}" r="4" fill="#2c2c2c"/><circle cx="${X0+11.5*fw}" cy="${Y0+3.5*dy}" r="4" fill="#2c2c2c"/>`;
+  for(let f=1;f<=NF;f++) svg+=`<text x="${X0+(f-0.5)*fw}" y="${Y0+5*dy+16}" text-anchor="middle" font-size="8.5" fill="#666" font-family="Archivo">${f}</text>`;
+  sh.notes.forEach(([str,col,t])=>{ const fret=origin+col; if(fret>NF)return; const y=Y0+(6-str)*dy,x=fret===0?X0-14:X0+(fret-0.5)*fw;
+    if(t==='s') svg+=`<circle cx="${x}" cy="${y}" r="6.6" fill="#181818" stroke="#bbb" stroke-width="1.8"/>`;
+    else{ svg+=`<circle cx="${x}" cy="${y}" r="7.4" fill="#ec3013"/>`; if(t==='r') svg+=`<text x="${x}" y="${y+3.2}" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#fff" font-family="Archivo">R</text>`; }});
+  svg+=`<text x="${X0}" y="12" font-size="11" font-weight="bold" fill="#ec3013" font-family="Archivo">${NOTES[keySel]} major — ${sh.n}</text>`;
+  document.getElementById('fretboard').innerHTML=svg;
+  document.getElementById('chordCard').innerHTML=chordDiagram(sh, origin)+
+    `<div class="txt"><div class="big">Play ${NOTES[keySel]} major</div><div class="sm">${sh.n} (${sh.hint})<br>each 🔴 = a finger · <b style="color:#fff">R</b> = root<br>the number on the left is the fret on the neck</div></div>`;
+}
+function drawPickers(){
+  document.getElementById('roots').innerHTML=CYCLE.map(t=>`<button class="chip2 ${t===keySel?'on':''}" data-t="${t}">${NOTES[t]}</button>`).join('');
+  document.getElementById('shapePick').innerHTML=SHAPES.map((sh,i)=>`<button class="chip2 ${i===shapeSel?'on':''}" data-s="${i}">${sh.n}</button>`).join('');
+}
+function markCycle(idx){
+  document.getElementById('cycleSeq').innerHTML = cycling
+    ? CYCLE.map((t,i)=>`<span class="ckey ${i===idx?'on':''}">${NOTES[t]}</span>`).join('') : '';
+}
+document.getElementById('roots').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;keySel=+b.dataset.t;drawPickers();drawFretboard();if(cycling)markCycle(cycleIdxOf(keySel));});
+document.getElementById('shapePick').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;shapeSel=+b.dataset.s;drawPickers();drawFretboard();});
+function cycleOff(){ cycling=false; const t=document.getElementById('cyclePlay'); if(t){ t.classList.remove('on'); t.textContent='▶ PLAY WITH METRONOME'; } markCycle(cycleIdxOf(keySel)); }
+document.getElementById('cyclePlay').onclick=function(){
+  cycling=!cycling; this.classList.toggle('on',cycling);
+  this.textContent=cycling?'◼ STOP CYCLE':'▶ PLAY WITH METRONOME';
+  if(cycling){ scaleReset(); connReset(); markCycle(cycleIdxOf(keySel)); if(!playing) play(); }
+  else { markCycle(cycleIdxOf(keySel)); if(playing && !scalePlaying && !connPlaying) play(); }
+};
+
+// ---------- init ----------
+setBpm(bpm); drawCellBtns(); drawCell(); drawPickers(); drawFretboard(); drawScaleUI(); buildScale(); drawScale(); buildConn(); drawConn();
+</script>
+</body>
+</html>
