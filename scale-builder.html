@@ -11,6 +11,8 @@
 html,body{margin:0;background:#111;color:#fff;font-family:'Archivo',sans-serif}
 .wrap{max-width:560px;margin:0 auto;padding:16px 14px 50px}
 a.back{color:#ec3013;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:.04em}
+.topbar{display:flex;justify-content:space-between;align-items:center}
+.topbar select{background:#181818;border:2px solid #444;color:#fff;font-family:inherit;font-size:11px;font-weight:700;padding:5px 8px;cursor:pointer}
 h1{font-size:17px;font-weight:700;letter-spacing:.05em;margin:12px 0 4px;border-bottom:2px solid #ec3013;padding-bottom:10px}
 .leg{font-size:11px;color:#999;line-height:1.7;margin:6px 0}
 .leg b{color:#fff}
@@ -18,7 +20,6 @@ h1{font-size:17px;font-weight:700;letter-spacing:.05em;margin:12px 0 4px;border-
 .chip2{border:2px solid #444;background:none;color:#bbb;font-family:inherit;font-size:11px;font-weight:700;padding:7px 10px;cursor:pointer}
 .chip2.on{border-color:#ec3013;color:#fff;background:#1d1210}
 .sec{font-size:12px;font-weight:700;letter-spacing:.06em;color:#ec3013;margin:22px 0 6px}
-/* workbook-style degree track */
 .track{display:flex;gap:4px;overflow-x:auto;padding:8px 2px 14px}
 .degree{flex:0 0 auto;text-align:center;width:66px}
 .degree .lbl{font-size:12px;font-weight:700;color:#ec3013}
@@ -45,21 +46,24 @@ h1{font-size:17px;font-weight:700;letter-spacing:.05em;margin:12px 0 4px;border-
 </head>
 <body>
 <div class="wrap">
-  <a class="back" href="./index.html">← BACK TO EXERCISES</a>
-  <h1>BUILD THE SCALE ✍️</h1>
-  <p class="leg">Pick the scale and the root, fill in the note for each degree and <b>submit for grading</b>. The app corrects it and gives you a score. It follows the method-book steps: degrees → intervals → natural notes → fix with ♯/♭.</p>
+  <div class="topbar">
+    <a class="back" id="t-back" href="./index.html">← BACK TO EXERCISES</a>
+    <select id="lang"><option value="en">EN</option><option value="pt">PT</option></select>
+  </div>
+  <h1 id="t-title">BUILD THE SCALE ✍️</h1>
+  <p class="leg" id="t-intro"></p>
 
-  <div class="sec">SCALE</div>
+  <div class="sec" id="t-sec-scale">SCALE</div>
   <div class="chips" id="types"></div>
-  <div class="sec">ROOT</div>
+  <div class="sec" id="t-sec-root">ROOT</div>
   <div class="chips" id="rootBtns"></div>
 
-  <div class="sec">FILL IN THE DEGREES</div>
+  <div class="sec" id="t-sec-fill">FILL IN THE DEGREES</div>
   <div class="track" id="track"></div>
   <div class="leg" id="ivHint"></div>
 
   <div class="keypad" id="keypad"></div>
-  <div class="leg" style="color:#ffb3a6"><b>Tap the keypad</b> to fill the focused field, or <b>type</b> directly (C, C#, Db, F#, etc.).</div>
+  <div class="leg" id="t-keyhint" style="color:#ffb3a6"></div>
 
   <div class="btns">
     <button id="submit">SUBMIT FOR GRADING</button>
@@ -71,29 +75,56 @@ h1{font-size:17px;font-weight:700;letter-spacing:.05em;margin:12px 0 4px;border-
     <div class="msg" id="gradeMsg"></div>
   </div>
 
-  <div class="steps">
-    <b>STEP BY STEP (method book)</b><br>
-    1. Write down the degrees (1, 2, 3… and back to 1)<br>
-    2. Write down the interval pattern (W = whole step, H = half step)<br>
-    3. Fill in all the NATURAL notes<br>
-    4. Fix the intervals using ♯ or ♭
-  </div>
+  <div class="steps" id="t-steps"></div>
 </div>
 
 <script>
+const T={
+  en:{
+    back:'← BACK TO EXERCISES', title:'BUILD THE SCALE ✍️',
+    intro:'Pick the scale and the root, fill in the note for each degree and <b>submit for grading</b>. The app corrects it and gives you a score. It follows the method-book steps: degrees → intervals → natural notes → fix with ♯/♭.',
+    secScale:'SCALE', secRoot:'ROOT', secFill:'FILL IN THE DEGREES',
+    keyhint:'<b>Tap the keypad</b> to fill the focused field, or <b>type</b> directly (C, C#, Db, F#, etc.).',
+    submit:'SUBMIT FOR GRADING', clear:'CLEAR',
+    ivHint:'Intervals (W = whole step, H = half step): ',
+    steps:'<b>STEP BY STEP (method book)</b><br>1. Write down the degrees (1, 2, 3… and back to 1)<br>2. Write down the interval pattern (W = whole step, H = half step)<br>3. Fill in all the NATURAL notes<br>4. Fix the intervals using ♯ or ♭',
+    perfect:'Perfect! Whole scale right. 🎸',
+    almost:(h,t)=>`${h}/${t} correct — almost there, check the red ones.`,
+    review:(h,t)=>`${h}/${t} correct — review the intervals (W and H).`,
+    start:(h,t)=>`${h}/${t} correct — start with the natural notes, then fix them with ♯/♭.`,
+    scales:['Major','Natural minor','Harmonic minor','Minor pent.','Major pent.','Blues'],
+  },
+  pt:{
+    back:'← VOLTAR AOS EXERCÍCIOS', title:'MONTAR ESCALA ✍️',
+    intro:'Escolhe a escala e a tônica, preenche a nota de cada grau e <b>envia pra validação</b>. O app corrige e te dá uma nota. Segue o passo a passo da apostila: graus → intervalos → notas naturais → corrige com ♯/♭.',
+    secScale:'ESCALA', secRoot:'TÔNICA', secFill:'PREENCHA OS GRAUS',
+    keyhint:'<b>Toca no teclado</b> pra inserir no campo focado, ou <b>digita</b> direto (C, C#, Db, F#, etc.).',
+    submit:'ENVIAR PRA VALIDAÇÃO', clear:'LIMPAR',
+    ivHint:'Intervalos (W = tom, H = semitom): ',
+    steps:'<b>PASSO A PASSO (apostila)</b><br>1. Coloca os graus (1, 2, 3… e volta pro 1)<br>2. Coloca a relação intervalar (W = tom, H = semitom)<br>3. Coloca todas as notas NATURAIS<br>4. Corrige os intervalos usando ♯ ou ♭',
+    perfect:'Perfeito! Escala inteira certa. 🎸',
+    almost:(h,t)=>`${h}/${t} certas — quase lá, confere as vermelhas.`,
+    review:(h,t)=>`${h}/${t} certas — revê os intervalos (W e H).`,
+    start:(h,t)=>`${h}/${t} certas — começa pelas notas naturais, depois corrige com ♯/♭.`,
+    scales:['Maior','Menor natural','Menor harmônica','Pent. menor','Pent. maior','Blues'],
+  }
+};
+let lang=(localStorage.getItem('lang')||(navigator.language||'en')).toLowerCase().startsWith('pt')?'pt':'en';
+function tr(){return T[lang];}
+
 const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const FLAT ={'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
 const SCALES=[
- {n:'Major',          int:[0,2,4,5,7,9,11], deg:['1','2','3','4','5','6','7'], iv:['W','W','H','W','W','W','H']},
- {n:'Natural minor',  int:[0,2,3,5,7,8,10], deg:['1','2','♭3','4','5','♭6','♭7'], iv:['W','H','W','W','H','W','W']},
- {n:'Harmonic minor', int:[0,2,3,5,7,8,11], deg:['1','2','♭3','4','5','♭6','7'], iv:['W','H','W','W','H','W+H','H']},
- {n:'Minor pent.',    int:[0,3,5,7,10],     deg:['1','♭3','4','5','♭7'], iv:['W+H','W','W','W+H','W']},
- {n:'Major pent.',    int:[0,2,4,7,9],      deg:['1','2','3','5','6'], iv:['W','W','W+H','W','W+H']},
- {n:'Blues',          int:[0,3,5,6,7,10],   deg:['1','♭3','4','♭5','5','♭7'], iv:['W+H','W','H','H','W+H','W']},
+ {int:[0,2,4,5,7,9,11], deg:['1','2','3','4','5','6','7'], iv:['W','W','H','W','W','W','H']},
+ {int:[0,2,3,5,7,8,10], deg:['1','2','♭3','4','5','♭6','♭7'], iv:['W','H','W','W','H','W','W']},
+ {int:[0,2,3,5,7,8,11], deg:['1','2','♭3','4','5','♭6','7'], iv:['W','H','W','W','H','W+H','H']},
+ {int:[0,3,5,7,10],     deg:['1','♭3','4','5','♭7'], iv:['W+H','W','W','W+H','W']},
+ {int:[0,2,4,7,9],      deg:['1','2','3','5','6'], iv:['W','W','W+H','W','W+H']},
+ {int:[0,3,5,6,7,10],   deg:['1','♭3','4','♭5','5','♭7'], iv:['W+H','W','H','H','W+H','W']},
 ];
+function scaleName(i){ return tr().scales[i]; }
 let type=0, root=0, focused=0;
 
-// normalize user input to a 0-11 pitch index (accepts C, C#, Db — letter names only)
 function idxOf(txt){
   if(!txt) return -1;
   const t=txt.trim().toUpperCase().replace('♯','#').replace('♭','b');
@@ -104,12 +135,10 @@ function idxOf(txt){
 }
 function targetName(semitone){
   const abs=(root+semitone)%12;
-  // prefer flats if the scale has flatted degrees
   const hasFlat=SCALES[type].deg.some(g=>g.includes('♭'));
   if(hasFlat && FLAT[NOTES[abs]]) return FLAT[NOTES[abs]];
   return NOTES[abs];
 }
-
 function buildTrack(){
   const sc=SCALES[type];
   document.getElementById('track').innerHTML = sc.deg.map((g,i)=>
@@ -119,22 +148,21 @@ function buildTrack(){
        <input data-i="${i}" autocomplete="off" spellcheck="false">
        <div class="mark" id="mark-${i}"></div>
      </div>`).join('') +
-    `<div class="degree"><div class="lbl">R</div><div class="iv"></div>
+    `<div class="degree"><div class="lbl">1</div><div class="iv"></div>
        <input value="${targetName(0)}" disabled style="opacity:.5"><div class="mark"></div></div>`;
   document.querySelectorAll('.degree input:not([disabled])').forEach(inp=>{
     inp.addEventListener('focus',()=>focused=+inp.dataset.i);
   });
-  document.getElementById('ivHint').innerHTML='Intervals (W = whole step, H = half step): <b>'+sc.iv.join(' · ')+'</b>';
+  document.getElementById('ivHint').innerHTML=tr().ivHint+'<b>'+sc.iv.join(' · ')+'</b>';
   document.getElementById('gradeBox').style.display='none';
 }
 function buildPickers(){
-  document.getElementById('types').innerHTML=SCALES.map((s,i)=>`<button class="chip2 ${i===type?'on':''}" data-t="${i}">${s.n}</button>`).join('');
+  document.getElementById('types').innerHTML=SCALES.map((s,i)=>`<button class="chip2 ${i===type?'on':''}" data-t="${i}">${scaleName(i)}</button>`).join('');
   document.getElementById('rootBtns').innerHTML=NOTES.map((n,i)=>{const lbl=FLAT[n]?n+'/'+FLAT[n]:n;return `<button class="chip2 ${i===root?'on':''}" data-r="${i}">${lbl}</button>`;}).join('');
 }
 document.getElementById('types').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;type=+b.dataset.t;buildPickers();buildTrack();});
 document.getElementById('rootBtns').addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;root=+b.dataset.r;buildPickers();buildTrack();});
 
-// note keypad
 document.getElementById('keypad').innerHTML=['C','C#/Db','D','D#/Eb','E','F','F#/Gb','G','G#/Ab','A','A#/Bb','B']
   .map(n=>`<button class="key" data-n="${n.split('/')[0]}">${n}</button>`).join('');
 document.getElementById('keypad').addEventListener('click',e=>{
@@ -156,18 +184,37 @@ document.getElementById('submit').onclick=()=>{
   const grade=(hits/total*10);
   const box=document.getElementById('gradeBox'); box.style.display='block';
   document.getElementById('gradeN').textContent=grade.toFixed(1);
-  let msg;
-  if(pct===100) msg='Perfect! Whole scale right. 🎸';
-  else if(pct>=70) msg=`${hits}/${total} correct — almost there, check the red ones.`;
-  else if(pct>=40) msg=`${hits}/${total} correct — review the intervals (W and H).`;
-  else msg=`${hits}/${total} correct — start with the natural notes, then fix them with ♯/♭.`;
+  const x=tr(); let msg;
+  if(pct===100) msg=x.perfect;
+  else if(pct>=70) msg=x.almost(hits,total);
+  else if(pct>=40) msg=x.review(hits,total);
+  else msg=x.start(hits,total);
   document.getElementById('gradeMsg').textContent=msg;
   document.getElementById('gradeN').style.color = pct===100?'#2ecc71':(pct>=50?'#ec3013':'#ff6a52');
   box.scrollIntoView({block:'center',behavior:'smooth'});
 };
 document.getElementById('clear').onclick=buildTrack;
 
-buildPickers(); buildTrack();
+function applyI18n(){
+  const x=tr();
+  document.documentElement.lang=lang==='pt'?'pt-BR':'en';
+  document.getElementById('t-back').textContent=x.back;
+  document.getElementById('t-title').textContent=x.title;
+  document.getElementById('t-intro').innerHTML=x.intro;
+  document.getElementById('t-sec-scale').textContent=x.secScale;
+  document.getElementById('t-sec-root').textContent=x.secRoot;
+  document.getElementById('t-sec-fill').textContent=x.secFill;
+  document.getElementById('t-keyhint').innerHTML=x.keyhint;
+  document.getElementById('submit').textContent=x.submit;
+  document.getElementById('clear').textContent=x.clear;
+  document.getElementById('t-steps').innerHTML=x.steps;
+}
+function renderAll(){ applyI18n(); buildPickers(); buildTrack(); }
+const langSel=document.getElementById('lang');
+langSel.value=lang;
+langSel.onchange=()=>{ lang=langSel.value; localStorage.setItem('lang',lang); renderAll(); };
+
+renderAll();
 </script>
 </body>
 </html>
